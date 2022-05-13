@@ -11,6 +11,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const DefaultPort = ":3333"
+
 type (
 	Option func(*UsefulService)
 
@@ -43,7 +45,7 @@ func WithConfig(cfg *Config) Option {
 func NewUsefulService(options ...Option) *UsefulService {
 	us := &UsefulService{
 		server: &fasthttp.Server{},
-		cfg:    &Config{Address: ":3333"},
+		cfg:    &Config{Address: DefaultPort},
 	}
 
 	us.server.Handler = newMiddleware(newHandler(us))

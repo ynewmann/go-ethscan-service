@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	apiUrl := flag.String("ApiUrl", "", "Api URL")
-	apiKey := flag.String("ApiKey", "", "Api key")
+	apiUrl := flag.String("apiUrl", "", "Api URL")
+	apiKey := flag.String("apiKey", "", "Api key")
 	useCache := flag.Bool("useCache", true, "use cache")
-	port := flag.String("port", ":3333", "server address")
-	cacheSize := flag.Uint("cacheSize", 1000, "server address")
+	port := flag.String("port", us.DefaultPort, "server address")
+	cacheSize := flag.Uint("cacheSize", 1000, "cache size")
 	memoryCacheBackupPath := flag.String("cache-bckp", "", "backup of cache")
 	loadCfg := flag.String("load-cfg", "", "config path")
 
