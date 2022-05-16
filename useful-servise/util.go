@@ -2,9 +2,12 @@ package useful_servise
 
 import (
 	"log"
+	"math/big"
 	"regexp"
 	"strconv"
 )
+
+const Eth = 1e18
 
 func strictMatch(pattern string, b []byte) bool {
 	pattern = "^" + pattern + "$"
@@ -35,4 +38,10 @@ func getBlockNumber(path []byte) (uint64, error) {
 	}
 
 	return n, nil
+}
+
+func weiToEth(wei *big.Float) float64 {
+	amount, _ := new(big.Float).Quo(wei, big.NewFloat(Eth)).Float64()
+
+	return amount
 }

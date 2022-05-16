@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go-ethscan-service/storage"
 	"log"
 	"math/big"
 	"net/http"
-
-	"go-ethscan-service/storage"
 
 	"github.com/valyala/fasthttp"
 )
@@ -16,6 +15,8 @@ import (
 const (
 	blockRoutePattern      = "\\/api\\/blocks\\/[0-9]*"
 	blockTotalRoutePattern = blockRoutePattern + "\\/total"
+
+	ZeroHex = "0x0"
 )
 
 var ErrBadRoute = errors.New("bad route")
@@ -113,22 +114,19 @@ func (h *handler) getTotalInBlock(ctx *fasthttp.RequestCtx, num uint64) {
 		return
 	}
 
-	total := new(big.Float).SetFloat64(0)
+	totalWei := new(big.Float).SetUint64(0)
 	for _, trx := range block.Transactions {
-		if trx.Value == "0x0" {
+		if trx.Value == ZeroHex {
 			continue
 		}
 
-		// convert hex to float64
 		val, _ := new(big.Float).SetString(trx.Value)
-		// add parsed value to total value
-		total = new(big.Float).Add(total, val)
+		totalWei.Add(totalWei, val)
 	}
-	// convert wei to eth
-	amount, _ := new(big.Float).Quo(total, big.NewFloat(1e18)).Float64()
+
 	tr := &TotalResponse{
 		Transactions: uint64(len(block.Transactions)),
-		Amount:       amount,
+		Amount:       weiToEth(totalWei),
 	}
 
 	body, err := json.Marshal(tr)
