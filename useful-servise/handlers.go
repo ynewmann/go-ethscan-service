@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-ethscan-service/storage"
 	"log"
 	"math/big"
 	"net/http"
@@ -97,11 +96,11 @@ func (h *handler) getTotalInBlock(ctx *fasthttp.RequestCtx, num uint64) {
 	hexNum := fmt.Sprintf("%x", num)
 	if h.us.cfg.UseCache {
 		entry, err := h.us.totalAmountCache.Get(hexNum)
-		if err != nil && err != storage.ErrNotFound {
-			log.Printf("Error while getting entry from totalAmountCache: %s\n", err)
+		if err != nil {
+			log.Printf("Error while getting %d from cache: %s\n", num, err)
 		}
 
-		if err != storage.ErrNotFound {
+		if entry != nil {
 			ctx.Response.Header.SetContentType("application/json")
 			ctx.Response.SetBody(entry.Data())
 			return
@@ -140,7 +139,7 @@ func (h *handler) getTotalInBlock(ctx *fasthttp.RequestCtx, num uint64) {
 
 	if h.us.cfg.UseCache {
 		err = h.us.totalAmountCache.Put(hexNum, body)
-		if err != nil && err != storage.ErrNotFound {
+		if err != nil {
 			log.Printf("Error while saving new entry to totalAmountCache: %s\n", err)
 		}
 	}

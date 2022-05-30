@@ -24,18 +24,6 @@ type (
 	}
 )
 
-func WithStorage(s storage.Storage) Option {
-	return func(us *UsefulService) {
-		us.totalAmountCache = s
-	}
-}
-
-func WithApi(api etherscan.Api) Option {
-	return func(us *UsefulService) {
-		us.api = api
-	}
-}
-
 func WithConfig(cfg *Config) Option {
 	return func(us *UsefulService) {
 		us.cfg = cfg
@@ -45,7 +33,7 @@ func WithConfig(cfg *Config) Option {
 func NewUsefulService(options ...Option) *UsefulService {
 	us := &UsefulService{
 		server: &fasthttp.Server{},
-		cfg:    &Config{Address: DefaultPort},
+		cfg:    DefaultConfig(),
 	}
 
 	us.server.Handler = newMiddleware(newHandler(us))
@@ -53,34 +41,7 @@ func NewUsefulService(options ...Option) *UsefulService {
 		opt(us)
 	}
 
-	if us.cfg.UseCache && us.totalAmountCache == nil {
-		log.Println("Using default totalAmountCache...")
-		us.totalAmountCache = storage.NewMemoryCache(us.cfg.CacheSize)
-	}
-
-	if us.cfg.UseCache && us.cfg.MemoryCacheBackupPath != "" {
-		s, ok := us.totalAmountCache.(storage.MemoryStorage)
-		if ok {
-			log.Println("Trying to load totalAmountCache backup...")
-			err := s.LoadFromFile(us.cfg.MemoryCacheBackupPath)
-			if err != nil {
-				log.Printf("Failed to load totalAmountCache backup: %s", err.Error())
-			}
-		}
-	}
-
-	if us.api == nil {
-		opts := make([]etherscan.ApiClientOption, 0, 2)
-		if us.cfg.ApiUrl != "" {
-			opts = append(opts, etherscan.WithUrl(us.cfg.ApiUrl))
-		}
-		if us.cfg.ApiKey != "" {
-			opts = append(opts, etherscan.WithApiKey(us.cfg.ApiKey))
-		}
-
-		us.api = etherscan.NewApi(etherscan.WithClient(etherscan.NewApiClient(opts...)))
-	}
-
+	us.parseConfig()
 	return us
 }
 
@@ -111,4 +72,32 @@ func (us *UsefulService) Shutdown() error {
 	}
 
 	return us.server.Shutdown()
+}
+
+func (us *UsefulService) parseConfig() {
+	if us.cfg.UseCache && us.totalAmountCache == nil {
+		log.Println("Using default totalAmountCache...")
+		us.totalAmountCache = storage.NewMemoryCache(us.cfg.CacheSize)
+	}
+
+	if us.cfg.UseCache && us.cfg.MemoryCacheBackupPath != "" {
+		s, ok := us.totalAmountCache.(storage.MemoryStorage)
+		if ok {
+			log.Println("Trying to load totalAmountCache backup...")
+			err := s.LoadFromFile(us.cfg.MemoryCacheBackupPath)
+			if err != nil {
+				log.Printf("Failed to load totalAmountCache backup: %s", err.Error())
+			}
+		}
+	}
+
+	opts := make([]etherscan.ApiOption, 0, 2)
+	if us.cfg.ApiUrl != "" {
+		opts = append(opts, etherscan.WithUrl(us.cfg.ApiUrl))
+	}
+	if us.cfg.ApiKey != "" {
+		opts = append(opts, etherscan.WithApiKey(us.cfg.ApiKey))
+	}
+
+	us.api = etherscan.NewApi(opts...)
 }

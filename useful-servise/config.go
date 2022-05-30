@@ -3,6 +3,7 @@ package useful_servise
 import (
 	"bytes"
 	"encoding/json"
+	"go-ethscan-service/etherscan"
 	"log"
 	"os"
 	"path"
@@ -11,6 +12,13 @@ import (
 const DefaultRelativePath = ".jmind"
 const DefaultConfigPath = ".jmind/config.cfg"
 const DefaultMemoryCacheBackupPath = ".jmind/cache.backup"
+
+func DefaultConfig() *Config {
+	return &Config{
+		UseCache: false,
+		ApiUrl:   etherscan.DefaultApiUrl,
+	}
+}
 
 type Config struct {
 	UseCache              bool

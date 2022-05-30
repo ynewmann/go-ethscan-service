@@ -1,8 +1,6 @@
 package useful_servise
 
 import (
-	"go-ethscan-service/etherscan"
-	"go-ethscan-service/storage"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,16 +15,6 @@ func TestNewUsefulService(t *testing.T) {
 		assert.NotNil(t, us.server)
 		assert.NotNil(t, us.api)
 		assert.Nil(t, us.totalAmountCache) // because cfg.UseCache is false
-	})
-
-	t.Run("WithStorage", func(t *testing.T) {
-		cache := storage.NewMemoryCache(1000)
-		us := NewUsefulService(WithStorage(cache))
-		require.NotNil(t, us)
-		assert.EqualValues(t, cache, us.totalAmountCache)
-		assert.NotNil(t, us.cfg)
-		assert.NotNil(t, us.server)
-		assert.NotNil(t, us.api)
 	})
 
 	t.Run("WithConfig", func(t *testing.T) {
@@ -44,15 +32,5 @@ func TestNewUsefulService(t *testing.T) {
 		assert.NotNil(t, us.server)
 		assert.NotNil(t, us.api)
 		assert.NotNil(t, us.totalAmountCache)
-	})
-
-	t.Run("WithApi", func(t *testing.T) {
-		api := etherscan.NewApi()
-		us := NewUsefulService(WithApi(api))
-		require.NotNil(t, us)
-		assert.EqualValues(t, api, us.api)
-		assert.NotNil(t, us.cfg)
-		assert.NotNil(t, us.server)
-		assert.Nil(t, us.totalAmountCache) // because cfg.UseCache is false
 	})
 }

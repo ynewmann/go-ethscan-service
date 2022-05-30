@@ -7,12 +7,12 @@ import (
 )
 
 func TestNewModule(t *testing.T) {
-	client := NewApiClient()
+	api := &api{}
 	name := "test"
 
-	m := NewModule(client, name)
+	m := NewModule(api, name)
 	require.NotNil(t, m)
-	assert.Equal(t, client, m.client)
+	assert.Equal(t, api, m.api)
 	assert.EqualValues(t, name, m.Name)
 	assert.EqualValues(t, name, m.GetName())
 }

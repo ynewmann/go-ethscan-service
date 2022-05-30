@@ -6,14 +6,14 @@ type (
 	}
 
 	Module struct {
-		client *apiClient
-		Name   string
+		api  *api
+		Name string
 	}
 )
 
-func NewModule(client *apiClient, name string) *Module {
+func NewModule(api *api, name string) *Module {
 	return &Module{
-		client,
+		api,
 		name,
 	}
 }

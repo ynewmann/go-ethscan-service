@@ -33,16 +33,16 @@ type (
 	}
 )
 
-func NewProxyModule(client *apiClient) Proxy {
-	return &ProxyModule{NewModule(client, ModuleName)}
+func NewProxyModule(api *api) Proxy {
+	return &ProxyModule{NewModule(api, ModuleName)}
 }
 
 func (p *ProxyModule) GetBlockByNumber(ctx context.Context, number uint64) (*BlockDto, error) {
 	page, err := p.CallAction(
 		ctx,
 		GetBlockByNumber,
-		WithArg(TagArg, fmt.Sprintf("%x", number)),
-		WithArg(BooleanArg, "true"),
+		withArg(TagArg, fmt.Sprintf("%x", number)),
+		withArg(BooleanArg, "true"),
 	)
 	if err != nil {
 		return nil, err
@@ -53,9 +53,9 @@ func (p *ProxyModule) GetBlockByNumber(ctx context.Context, number uint64) (*Blo
 
 func (p *ProxyModule) CallAction(ctx context.Context, action string, args ...ArgOption) (*BlockPage, error) {
 	page := &BlockPage{}
-	args = append(args, WithArg(ModuleArg, p.Name), WithArg(ActionArg, action))
+	args = append(args, withArg(ModuleArg, p.Name), withArg(ActionArg, action))
 
-	_, err := p.client.doNewRequest(
+	_, err := p.api.doNewRequest(
 		ctx,
 		http.MethodGet,
 		nil,
