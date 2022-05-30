@@ -22,19 +22,18 @@ const (
 
 type (
 	Proxy interface {
-		Moduler
-
 		GetBlockByNumber(context.Context, uint64) (*BlockDto, error)
 		CallAction(context.Context, string, ...ArgOption) (*BlockPage, error)
 	}
 
 	ProxyModule struct {
-		*Module
+		api  *api
+		Name string
 	}
 )
 
 func NewProxyModule(api *api) Proxy {
-	return &ProxyModule{NewModule(api, ModuleName)}
+	return &ProxyModule{api, ModuleName}
 }
 
 func (p *ProxyModule) GetBlockByNumber(ctx context.Context, number uint64) (*BlockDto, error) {
